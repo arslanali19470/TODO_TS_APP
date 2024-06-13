@@ -9,6 +9,9 @@ import {
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../StackNavigation/StackNavigation';
 import {RouteProp} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {PushToArray, DeleteFromArray} from '../ReduxToolkit/dataSlice';
+import {RootState} from '../ReduxToolkit/store';
 
 type ListScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -22,11 +25,27 @@ export type ListScreenProps = {
 };
 
 const ListScreen: React.FC<ListScreenProps> = ({navigation, route}) => {
-  const textArray: number[] = [1, 2, 3];
   const {userName} = route.params;
+  const FirstArray = useSelector((state: RootState) => state.data.array1);
+  const dispatch = useDispatch();
+
+  const handleDelete = (item: string) => {
+    dispatch(DeleteFromArray(item));
+  };
 
   return (
     <>
+      <Text
+        style={{
+          color: 'orange',
+          fontSize: 30,
+          alignSelf: 'center',
+          marginTop: 20,
+          marginBottom: 30,
+        }}>
+        Hello! {userName} 😊
+      </Text>
+
       <ScrollView
         style={{
           flex: 1,
@@ -36,10 +55,10 @@ const ListScreen: React.FC<ListScreenProps> = ({navigation, route}) => {
           borderTopRightRadius: 15,
           paddingTop: 20,
         }}>
-        {textArray.map((item, ind) => (
+        {FirstArray.map((item, ind) => (
           <View key={ind} style={{marginBottom: 15}}>
             <TouchableOpacity
-              style={{backgroundColor: 'white', borderRadius: 15}}>
+              style={{backgroundColor: 'white', borderRadius: 15, padding: 10}}>
               <View
                 style={{
                   padding: 10,
@@ -62,17 +81,57 @@ const ListScreen: React.FC<ListScreenProps> = ({navigation, route}) => {
                     {ind + 1}
                   </Text>
                 </View>
-                <View>
+                <View style={{marginBottom: 10}}>
                   <Text>{item}</Text>
                 </View>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 20,
+                  marginTop: 5,
+                  marginBottom: 5,
+                }}>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: 'green',
+                    padding: 5,
+                    borderRadius: 5,
+                    width: 90,
+                    alignItems: 'center',
+                  }}
+                  onPress={() =>
+                    navigation.navigate('AddListScreen', {
+                      userName,
+                      MyTopic: item,
+                    })
+                  }>
+                  <Text style={{color: 'white'}}>Update</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: 'red',
+                    padding: 5,
+                    borderRadius: 5,
+                    width: 90,
+                    alignItems: 'center',
+                  }}
+                  onPress={() => handleDelete(item)}>
+                  <Text style={{color: 'white'}}>Delete</Text>
+                </TouchableOpacity>
               </View>
             </TouchableOpacity>
           </View>
         ))}
+        <View style={{height: 20}}></View>
       </ScrollView>
       <TouchableOpacity
         style={styles.CircularButton}
-        onPress={() => navigation.navigate('AddListScreen', {userName})}>
+        onPress={() =>
+          navigation.navigate('AddListScreen', {userName, MyTopic: ''})
+        }>
         <Text
           style={{
             fontSize: 30,
@@ -81,6 +140,19 @@ const ListScreen: React.FC<ListScreenProps> = ({navigation, route}) => {
             textAlign: 'center',
           }}>
           +
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.CircularButton2}
+        onPress={() => navigation.navigate('DeleteScreen', {userName})}>
+        <Text
+          style={{
+            fontSize: 30,
+            color: 'white',
+            fontWeight: '700',
+            textAlign: 'center',
+          }}>
+          -
         </Text>
       </TouchableOpacity>
     </>
@@ -94,6 +166,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   CircularButton: {
+    height: 60,
+    width: 60,
+    position: 'absolute',
+    bottom: 120,
+    right: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
+    borderRadius: 100,
+    alignContent: 'center',
+  },
+  CircularButton2: {
     height: 60,
     width: 60,
     position: 'absolute',
